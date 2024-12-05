@@ -44,7 +44,13 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation("com.google.firebase:firebase-auth:22.1.1") // Firebase Auth
     implementation("com.google.firebase:firebase-storage:20.2.1") // Firebase Storage
-
+    implementation("com.itextpdf:itext7-core:7.2.5")
+    implementation("androidx.appcompat:appcompat:1.6.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.google.android.material:material:1.9.0")
+    implementation("com.itextpdf:itextpdf:5.5.13.3")
+    implementation("com.itextpdf:itext7-core:7.1.16")
+    implementation ("androidx.core:core:1.9.0")
 }
 
 // Apply the Google Services plugin after dependencies

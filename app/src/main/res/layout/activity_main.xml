@@ -2,45 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <!-- Upload File Button -->
-    <Button
-        android:id="@+id/uploadFileButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Upload File" />
-
-    <!-- Display File Path -->
     <TextView
         android:id="@+id/filePathTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No file selected"
-        android:layout_marginTop="20dp"
-        android:textSize="16sp" />
+        android:text="No file selected" />
 
-    <!-- Display Upload Status -->
     <TextView
         android:id="@+id/uploadStatusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload Status: Not Started"
-        android:textSize="16sp"
-        android:layout_marginTop="20dp" />
+        android:text="Upload Status" />
 
-    <!-- Scrollable container for rendered PDF pages -->
+    <!-- Add an EditText for the user to enter the split page -->
+    <EditText
+        android:id="@+id/splitPageEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter split page number"
+        android:inputType="number" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <!-- LinearLayout to hold each rendered PDF page -->
         <LinearLayout
             android:id="@+id/pdfContainerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical">
+        </LinearLayout>
     </ScrollView>
+
+    <Button
+        android:id="@+id/uploadFileButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upload PDF" />
+
+    <Button
+        android:id="@+id/splitPdfButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Split PDF" />
 </LinearLayout>

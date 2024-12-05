@@ -1,26 +1,36 @@
 package com.yash.productivityapp;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.net.Uri;
 
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int REQUEST_CODE_PICK_FILE = 101;
+
     private TextView filePathTextView, uploadStatusTextView;
-    private LinearLayout pdfContainerLayout;  // Container to hold rendered pages
+    private LinearLayout pdfContainerLayout;
+    private EditText splitPageEditText;
+    private Uri selectedPdfUri;  // To store selected PDF URI
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,35 +39,65 @@ public class MainActivity extends AppCompatActivity {
 
         filePathTextView = findViewById(R.id.filePathTextView);
         uploadStatusTextView = findViewById(R.id.uploadStatusTextView);
-        pdfContainerLayout = findViewById(R.id.pdfContainerLayout);  // Layout to hold rendered pages
+        pdfContainerLayout = findViewById(R.id.pdfContainerLayout);
+        splitPageEditText = findViewById(R.id.splitPageEditText);
 
         Button uploadFileButton = findViewById(R.id.uploadFileButton);
+        Button splitPdfButton = findViewById(R.id.splitPdfButton);
 
         // Open file picker when the upload button is clicked
         uploadFileButton.setOnClickListener(v -> openFilePicker());
+
+        // When the "Split PDF" button is clicked, navigate to SplitPdfActivity
+        splitPdfButton.setOnClickListener(v -> {
+            String splitPageInput = splitPageEditText.getText().toString();
+            if (TextUtils.isEmpty(splitPageInput)) {
+                Toast.makeText(this, "Please enter a page number to split", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int splitPage = Integer.parseInt(splitPageInput);
+
+            if (splitPage <= 0) {
+                Toast.makeText(this, "Please enter a valid split page number", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Ensure that the selected PDF URI is not null
+            if (selectedPdfUri == null) {
+                Toast.makeText(this, "No PDF file selected", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Pass the selected PDF URI and splitPage to SplitPdfActivity
+            Intent intent = new Intent(MainActivity.this, SplitPdfActivity.class);
+            intent.putExtra("pdfUri", selectedPdfUri.toString()); // Pass URI as string
+            intent.putExtra("splitPage", splitPage); // Pass split page
+            startActivity(intent);
+        });
     }
 
-    // Open file picker
     private void openFilePicker() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("application/pdf"); // Restrict file picker to PDFs
-        startActivityForResult(intent, 1);
+        // Open file picker using Storage Access Framework (SAF)
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("application/pdf");  // Restrict file picker to PDFs
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, REQUEST_CODE_PICK_FILE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
-            Uri fileUri = data.getData();
-            if (fileUri != null) {
-                filePathTextView.setText("File Selected: " + fileUri.toString());
-                renderPdf(fileUri);
+        if (requestCode == REQUEST_CODE_PICK_FILE && resultCode == RESULT_OK && data != null) {
+            selectedPdfUri = data.getData();  // Get the selected file URI
+            if (selectedPdfUri != null) {
+                filePathTextView.setText("File Selected: " + selectedPdfUri.toString());
+                renderPdf(selectedPdfUri);
             }
         }
     }
 
-    // Render all pages of the PDF
     private void renderPdf(Uri fileUri) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             try {
